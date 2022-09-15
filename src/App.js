@@ -1,26 +1,39 @@
 import React, { useState, useEffect } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import Photo from './Photo'
-// const clientID = `?client_id=${process.env.REACT_APP_ACCESS_KEY}`
+
 const clientId = `${process.env.REACT_APP_ACCESS_KEY}`
 const mainUrl = `https://api.unsplash.com/photos/?client_id=`
 const searchUrl = `https://api.unsplash.com/search/photos/?client_id=`
-// const accessKey = "1owf68QiVhmS_UaZqiGg5O_So_FjlpsBdlpaH3zpIK0"
 
 function App() {
   const [loading, setloading] = useState(false);
   const [photos, setphotos] = useState([]);
   const [page, setpage] = useState(1);
+  const [query, setquery] = useState('')
 
   const fetchImages = async () => {
     setloading(true);
-    let urlPage = `&page=${page}`
-    let url = `${mainUrl}${clientId}${urlPage}`;
+    let url;
+    const urlPage = `&page=${page}`;
+    const urlQuery = `&query=${query}`;
+    if (query) {
+      url = `${searchUrl}${clientId}${urlPage}${urlQuery}`
+    } else {
+      url = `${mainUrl}${clientId}${urlPage}`;
+    }
+
     try {
       const response = await fetch(url);
       const jsonData = await response.json();
 
-      setphotos((oldPhotos) => [...oldPhotos, ...jsonData]);
+      setphotos((oldPhotos) => {
+        if (query) {
+          return [...oldPhotos, ...jsonData.results]
+        } else {
+          return [...oldPhotos, ...jsonData]
+        }
+      });
     } catch (error) {
       console.log(error);
     }
@@ -45,12 +58,13 @@ function App() {
 
   const clickHandler = (e) => {
     e.preventDefault();
+    fetchImages();
   }
 
   return <main>
     <section className='search'>
       <form className='search-form'>
-        <input type='text' placeholder='search' className='form-input' />
+        <input type='text' placeholder='search' className='form-input' value={query} onChange={(e) => setquery(e.target.value)} />
         <button type='submit' className='submit-btn' onClick={clickHandler}>
           <FaSearch />
         </button>
