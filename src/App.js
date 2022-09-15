@@ -20,7 +20,7 @@ function App() {
       const response = await fetch(url);
       const jsonData = await response.json();
 
-      setphotos((oldData) => { return [...oldData, ...jsonData] });
+      setphotos(() => [...photos, ...jsonData]);
     } catch (error) {
       console.log(error);
     }
@@ -33,7 +33,7 @@ function App() {
 
   useEffect(() => {
     const scrollEvent = window.addEventListener("scroll", () => {
-      if (!loading && (window.pageYOffset + window.innerHeight) >= document.documentElement.scrollHeight - 100) {
+      if (!loading && (window.pageYOffset + window.innerHeight) >= document.documentElement.scrollHeight - 10) {
         setpage(oldPage => oldPage + 1);
       }
     });
