@@ -20,11 +20,10 @@ function App() {
       const jsonData = await response.json();
 
       setphotos(jsonData);
-      console.log(jsonData);
     } catch (error) {
       console.log(error);
-      setloading(false);
     }
+    setloading(false);
   }
 
   useEffect(() => {
@@ -32,7 +31,26 @@ function App() {
   }, []);
 
 
-  return <h2>stock photos starter</h2>
+  const clickHandler = (e) => {
+    e.preventDefault();
+  }
+
+  return <main>
+    <section className='search'>
+      <form className='search-form'>
+        <input type='text' placeholder='search' className='form-input' />
+        <button type='submit' className='submit-btn' onClick={clickHandler}>
+          <FaSearch />
+        </button>
+      </form>
+    </section>
+    <section className='photos'>
+      <div className='photos-center'>
+        {photos.map(photo => <Photo key={photo.id} {...photo} />)}
+      </div>
+      {loading && <h2 className='loading'>Loading...</h2>}
+    </section>
+  </main>
 }
 
 export default App
