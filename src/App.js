@@ -20,7 +20,7 @@ function App() {
       const response = await fetch(url);
       const jsonData = await response.json();
 
-      setphotos(() => [...photos, ...jsonData]);
+      setphotos((oldPhotos) => [...oldPhotos, ...jsonData]);
     } catch (error) {
       console.log(error);
     }
