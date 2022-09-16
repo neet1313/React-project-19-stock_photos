@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import Photo from './Photo'
 
@@ -10,13 +10,16 @@ function App() {
   const [loading, setloading] = useState(false);
   const [photos, setphotos] = useState([]);
   const [page, setpage] = useState(1);
-  const [query, setquery] = useState('')
+  const [query, setquery] = useState('');
+  const [newimages, setnewimages] = useState(false);
+  const mounted = useRef(false);
 
   const fetchImages = async () => {
     setloading(true);
     let url;
     const urlPage = `&page=${page}`;
     const urlQuery = `&query=${query}`;
+
     if (query) {
       url = `${searchUrl}${clientId}${urlPage}${urlQuery}`
     } else {
@@ -28,37 +31,59 @@ function App() {
       const jsonData = await response.json();
 
       setphotos((oldPhotos) => {
-        if (query) {
+        if (query && page === 1) {
+          return jsonData.results;
+        } else if (query) {
           return [...oldPhotos, ...jsonData.results]
         } else {
           return [...oldPhotos, ...jsonData]
         }
       });
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
+    setnewimages(false);
     setloading(false);
   }
 
   useEffect(() => {
     fetchImages();
+    // eslint-disable-next-line
   }, [page]);
 
   useEffect(() => {
     const scrollEvent = window.addEventListener("scroll", () => {
-      if (!loading && (window.pageYOffset + window.innerHeight) >= document.documentElement.scrollHeight - 10) {
-        setpage(oldPage => oldPage + 1);
+      if ((window.pageYOffset + window.innerHeight) >= document.body.scrollHeight - 10) {
+        setnewimages(true);
       }
+
     });
     return () => {
       window.addEventListener("scroll", scrollEvent);
     }
-  }, [loading])
+  }, [])
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    if (!newimages) return;
+    if (loading) return;
+    setpage(oldPage => oldPage + 1);
+    //Not running on initial render"
+    // eslint-disable-next-line
+  }, [newimages]);
 
 
   const clickHandler = (e) => {
     e.preventDefault();
-    fetchImages();
+    if (!query) { return }
+    if (page === 1) {
+      fetchImages();
+      return;
+    }
+    setpage(1);
   }
 
   return <main>
@@ -72,7 +97,7 @@ function App() {
     </section>
     <section className='photos'>
       <div className='photos-center'>
-        {photos.map(photo => <Photo key={photo.id} {...photo} />)}
+        {photos.map((photo, index) => <Photo key={index} {...photo} />)}
       </div>
       {loading && <h2 className='loading'>Loading...</h2>}
     </section>
