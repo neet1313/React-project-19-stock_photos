@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import Photo from './Photo'
+import LoadingSpinner from './UI/LoadingSpinner'
 
 const clientId = `${process.env.REACT_APP_ACCESS_KEY}`
 const mainUrl = `https://api.unsplash.com/photos/?client_id=`
@@ -99,7 +100,7 @@ function App() {
       <div className='photos-center'>
         {photos.map((photo, index) => <Photo key={index} {...photo} />)}
       </div>
-      {loading && <h2 className='loading'>Loading...</h2>}
+      {loading && <div className='loading'><LoadingSpinner /></div>}
     </section>
   </main>
 }
